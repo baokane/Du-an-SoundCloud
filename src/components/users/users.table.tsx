@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react'
-import '../../styles/users.css'
+import { Button, Modal, Table, TableProps, Tooltip, Input, message, notification } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import CreateUserModal from './create.user.modal';
+import UpdateUserModal from './update.user.modal';
+// import { ColumnType } from 'antd/es/table';
+// import '../../styles/users.css'
 
 interface IUsers {
     _id: number;
@@ -10,6 +15,12 @@ interface IUsers {
 
 const UsersTable = () => {
     const [listUsers, setListUsers] = useState([])
+
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
+    const access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiX2lkIjoiNjVmOTE3MGZjOTNiYmZiYmM4ZDllYzIzIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiVmlldE5hbSIsImlzVmVyaWZ5Ijp0cnVlLCJuYW1lIjoiSSdtIGFkbWluIiwidHlwZSI6IlNZU1RFTSIsInJvbGUiOiJBRE1JTiIsImdlbmRlciI6Ik1BTEUiLCJhZ2UiOjY5LCJpYXQiOjE3MTA4MzkxMjUsImV4cCI6MTc5NzIzOTEyNX0.CL1-ocUtMEfrWwDhCgnJFrjJL_CRo0slEHlF22w0irQ'
+
     useEffect(() => {
         getData()
     }, [])
@@ -26,7 +37,6 @@ const UsersTable = () => {
         //     }),
         // })
         // const data = await res.json()
-        const access_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0b2tlbiBsb2dpbiIsImlzcyI6ImZyb20gc2VydmVyIiwiX2lkIjoiNjVmOTE3MGZjOTNiYmZiYmM4ZDllYzIzIiwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJhZGRyZXNzIjoiVmlldE5hbSIsImlzVmVyaWZ5Ijp0cnVlLCJuYW1lIjoiSSdtIGFkbWluIiwidHlwZSI6IlNZU1RFTSIsInJvbGUiOiJBRE1JTiIsImdlbmRlciI6Ik1BTEUiLCJhZ2UiOjY5LCJpYXQiOjE3MTA4MzkxMjUsImV4cCI6MTc5NzIzOTEyNX0.CL1-ocUtMEfrWwDhCgnJFrjJL_CRo0slEHlF22w0irQ'
 
         const res1 = await fetch('http://localhost:8000/api/v1/users/all', {
             method: "GET",
@@ -37,34 +47,56 @@ const UsersTable = () => {
 
         })
         const d = await res1.json()
-        console.log('>>>d:', d.data.result)
+        // console.log('>>>d:', d.data.result)
         setListUsers(d.data.result)
     }
+
+    const columns: TableProps<IUsers>['columns'] = [
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            render: (value, record) => <a>{record.name}</a>,
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+        },
+        {
+            title: 'Role',
+            dataIndex: 'role',
+        },
+        {
+            title: 'Action',
+            render: (value, record) => {
+                return (
+                    <button onClick={() => setIsUpdateModalOpen(true)}>EDIT</button>
+                )
+            }
+        },
+    ]
+
     return (
-        <div>
-            <h2>HTML Table</h2>
-
-            <table>
-                <thead>
-                    <tr>
-                        <td>Email</td>
-                        <td>Name</td>
-                        <td>Role</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {listUsers.map((item: IUsers, index) => {
-                        return (
-                            <tr key={item._id}>
-                                <td>{item.email}</td>
-                                <td>{item.name}</td>
-                                <td>{item.role}</td>
-                            </tr>
-                        )
-                    })}
-
-                </tbody>
-            </table>
+        <div >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2>Table User</h2>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalOpen(true)}>Add New</Button>
+            </div>
+            <Table columns={columns} dataSource={listUsers} rowKey='_id' />
+            <Button type="primary" >
+                Open Modal
+            </Button>
+            <CreateUserModal
+                access_token={access_token}
+                getData={getData}
+                isCreateModalOpen={isCreateModalOpen}
+                setIsCreateModalOpen={setIsCreateModalOpen}
+            />
+            <UpdateUserModal
+                access_token={access_token}
+                getData={getData}
+                isCreateModalOpen={isUpdateModalOpen}
+                setIsCreateModalOpen={setIsUpdateModalOpen}
+            />
         </div>
     )
 }
