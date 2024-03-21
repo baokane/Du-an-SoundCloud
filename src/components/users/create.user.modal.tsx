@@ -1,4 +1,4 @@
-import { Input, Modal, message, notification } from 'antd';
+import { Input, Modal, message, notification, Button, Checkbox, Form, type FormProps, Select, InputNumber } from 'antd';
 import { useEffect, useState } from 'react';
 
 interface IProps {
@@ -19,6 +19,9 @@ const CreateUserModal = (props: IProps) => {
     const [gender, setGender] = useState('')
     const [address, setAddress] = useState('')
     const [role, setRole] = useState('')
+
+
+    // const [form] = Form.useForm();
 
     const handleOk = async () => {
         setIsCreateModalOpen(false);
@@ -58,6 +61,28 @@ const CreateUserModal = (props: IProps) => {
         setRole('')
     }
 
+    // Form
+    const onFinish: FormProps["onFinish"] = (values) => {
+        console.log('Success:', values);
+    };
+
+    const { Option } = Select;
+
+    // const onGenderChange = (value: string) => {
+    //     switch (value) {
+    //         case 'male':
+    //             form.setFieldsValue({ note: 'Hi, man!' });
+    //             break;
+    //         case 'female':
+    //             form.setFieldsValue({ note: 'Hi, lady!' });
+    //             break;
+    //         case 'other':
+    //             form.setFieldsValue({ note: 'Hi there!' });
+    //             break;
+    //         default:
+    //     }
+    // };
+
     return (
         <Modal
             title="Add New User"
@@ -66,7 +91,87 @@ const CreateUserModal = (props: IProps) => {
             onCancel={() => handleCloseCreateModal()}
             maskClosable={false}
         >
-            <div>
+            <Form
+                name="basic"
+                // labelCol={{ span: 8 }}
+                // wrapperCol={{ span: 16 }}
+                // style={{ maxWidth: 600 }}
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+                // onFinishFailed={onFinishFailed}
+                // autoComplete="off"
+                layout="vertical"
+            >
+                <Form.Item
+                    label="Name"
+                    name="name"
+                    rules={[{ required: true, message: 'Please input your name!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    label="Email"
+                    name="email"
+                    rules={[{ required: true, message: 'Please input your email!' }]}
+                >
+                    <Input type='email' />
+                </Form.Item>
+
+                <Form.Item
+                    label="Password"
+                    name="password"
+                    rules={[{ required: true, message: 'Please input your password!' }]}
+                >
+                    <Input.Password />
+                </Form.Item>
+
+                <Form.Item
+                    label="Age"
+                    name="age"
+                    rules={[{ required: true, message: 'Please input your age!' }]}
+                >
+                    <InputNumber style={{ width: '100%' }} />
+                </Form.Item>
+
+                <Form.Item
+                    label="Address"
+                    name="address"
+                    rules={[{ required: true, message: 'Please input your address!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item name="gender" label="Gender" rules={[{ required: true }]}>
+                    <Select
+                        placeholder="Select a option and change input text above"
+                        // onChange={onGenderChange}
+                        allowClear
+                    >
+                        <Option value="male">male</Option>
+                        <Option value="female">female</Option>
+                        <Option value="other">other</Option>
+                    </Select>
+                </Form.Item>
+
+                <Form.Item name="role" label="Role" rules={[{ required: true }]}>
+                    <Select
+                        placeholder="Select a option and change input text above"
+                        // onChange={onGenderChange}
+                        allowClear
+                    >
+                        <Option value="user">USER</Option>
+                        <Option value="admin">ADMIN</Option>
+                    </Select>
+                </Form.Item>
+
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Button type="primary" htmlType="submit">
+                        Submit
+                    </Button>
+                </Form.Item>
+            </Form>
+            {/* <div>
                 <label>Name:</label>
                 <Input
                     value={name}
@@ -114,8 +219,8 @@ const CreateUserModal = (props: IProps) => {
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                 />
-            </div>
-        </Modal>
+            </div> */}
+        </Modal >
     )
 }
 
