@@ -1,17 +1,20 @@
 import { Input, Modal, message, notification } from 'antd';
 import { useEffect, useState } from 'react';
+import { IUsers } from './users.table';
 
 interface IProps {
     access_token: string;
     getData: () => Promise<void>;
-    isCreateModalOpen: boolean;
-    setIsCreateModalOpen: (v: boolean) => void;
+    isUpdateModalOpen: boolean;
+    setIsUpdateModalOpen: (v: boolean) => void;
+    dataUpdate: null | IUsers;
+    setDataUpdate: any;
 }
 
 const UpdateUserModal = (props: IProps) => {
 
-    const { access_token, getData, isCreateModalOpen, setIsCreateModalOpen } = props
-
+    const { access_token, getData, isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, setDataUpdate } = props
+    console.log('dataUpdate:', dataUpdate)
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -20,13 +23,25 @@ const UpdateUserModal = (props: IProps) => {
     const [address, setAddress] = useState('')
     const [role, setRole] = useState('')
 
+    useEffect(() => {
+        if (dataUpdate) {
+            setName(dataUpdate.name)
+            setEmail(dataUpdate.email)
+            setPassword(dataUpdate.password)
+            setAge(dataUpdate.age)
+            setGender(dataUpdate.gender)
+            setAddress(dataUpdate.address)
+            setRole(dataUpdate.role)
+        }
+    }, [dataUpdate])
+
     const handleOk = async () => {
-        setIsCreateModalOpen(false);
+        setIsUpdateModalOpen(false);
         const data = {
-            name, email, password, age, gender, address, role
+            _id: dataUpdate?._id, name, email, age, gender, address, role
         }
         const res = await fetch('http://localhost:8000/api/v1/users', {
-            method: "POST",
+            method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${access_token}`,
@@ -34,7 +49,6 @@ const UpdateUserModal = (props: IProps) => {
             body: JSON.stringify(data),
         })
         const d = await res.json()
-        console.log('d:', d)
         if (d && d.data) {
             message.success(JSON.stringify(d.message))
             handleCloseCreateModal()
@@ -48,7 +62,8 @@ const UpdateUserModal = (props: IProps) => {
     };
 
     const handleCloseCreateModal = () => {
-        setIsCreateModalOpen(false)
+        setDataUpdate(null)
+        setIsUpdateModalOpen(false)
         setName('')
         setEmail('')
         setPassword('')
@@ -61,7 +76,7 @@ const UpdateUserModal = (props: IProps) => {
     return (
         <Modal
             title="Update A User"
-            open={isCreateModalOpen}
+            open={isUpdateModalOpen}
             onOk={handleOk}
             onCancel={() => handleCloseCreateModal()}
             maskClosable={false}
@@ -83,6 +98,7 @@ const UpdateUserModal = (props: IProps) => {
             <div>
                 <label>Password:</label>
                 <Input
+                    disabled
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
