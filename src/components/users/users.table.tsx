@@ -29,7 +29,7 @@ const UsersTable = () => {
     const [meta, setMeta] = useState(
         {
             current: 1,
-            pageSize: 1,
+            pageSize: 2,
             pages: 0,
             total: 0
         }
@@ -172,9 +172,7 @@ const UsersTable = () => {
                     }
                 }
             />
-            <Button type="primary" >
-                Open Modal
-            </Button>
+
             <CreateUserModal
                 access_token={access_token}
                 getData={getData}

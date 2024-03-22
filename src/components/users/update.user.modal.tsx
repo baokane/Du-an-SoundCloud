@@ -1,6 +1,7 @@
-import { Input, Modal, message, notification } from 'antd';
+import { Input, Modal, message, notification, Form, Select, InputNumber, type FormProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { IUsers } from './users.table';
+const { Option } = Select;
 
 interface IProps {
     access_token: string;
@@ -14,123 +15,174 @@ interface IProps {
 const UpdateUserModal = (props: IProps) => {
 
     const { access_token, getData, isUpdateModalOpen, setIsUpdateModalOpen, dataUpdate, setDataUpdate } = props
-    console.log('dataUpdate:', dataUpdate)
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [age, setAge] = useState('')
-    const [gender, setGender] = useState('')
-    const [address, setAddress] = useState('')
-    const [role, setRole] = useState('')
+
+    const [form] = Form.useForm();
 
     useEffect(() => {
         if (dataUpdate) {
-            setName(dataUpdate.name)
-            setEmail(dataUpdate.email)
-            setPassword(dataUpdate.password)
-            setAge(dataUpdate.age)
-            setGender(dataUpdate.gender)
-            setAddress(dataUpdate.address)
-            setRole(dataUpdate.role)
+            form.setFieldsValue({
+                name: dataUpdate.name,
+                email: dataUpdate.email,
+                age: dataUpdate.age,
+                gender: dataUpdate.gender,
+                address: dataUpdate.address,
+                role: dataUpdate.role
+            })
         }
     }, [dataUpdate])
 
-    const handleOk = async () => {
-        setIsUpdateModalOpen(false);
-        const data = {
-            _id: dataUpdate?._id, name, email, age, gender, address, role
-        }
-        const res = await fetch('http://localhost:8000/api/v1/users', {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-                'Authorization': `Bearer ${access_token}`,
-            },
-            body: JSON.stringify(data),
-        })
-        const d = await res.json()
-        if (d && d.data) {
-            message.success(JSON.stringify(d.message))
-            handleCloseCreateModal()
-            await getData()
-        } else {
-            notification.error({
-                message: 'Có lỗi xảy ra',
-                description: JSON.stringify(d.message)
-            })
-        }
-    };
+    // const handleOk = async () => {
+    //     setIsUpdateModalOpen(false);
+    //     const data = {
+    //         _id: dataUpdate?._id, name, email, age, gender, address, role
+    //     }
+    //     const res = await fetch('http://localhost:8000/api/v1/users', {
+    //         method: "PATCH",
+    //         headers: {
+    //             "Content-Type": "application/json",
+    //             'Authorization': `Bearer ${access_token}`,
+    //         },
+    //         body: JSON.stringify(data),
+    //     })
+    //     const d = await res.json()
+    //     if (d && d.data) {
+    //         message.success(JSON.stringify(d.message))
+    //         handleCloseCreateModal()
+    //         await getData()
+    //     } else {
+    //         notification.error({
+    //             message: 'Có lỗi xảy ra',
+    //             description: JSON.stringify(d.message)
+    //         })
+    //     }
+    // };
 
     const handleCloseCreateModal = () => {
         setDataUpdate(null)
         setIsUpdateModalOpen(false)
-        setName('')
-        setEmail('')
-        setPassword('')
-        setAge('')
-        setGender('')
-        setAddress('')
-        setRole('')
+        form.resetFields()
     }
+
+    // Form
+    const onFinish: FormProps["onFinish"] = async (values) => {
+        console.log('Success:', values);
+        const { name, email, age, gender, address, role } = values
+        if (dataUpdate) {
+            const data = {
+                _id: dataUpdate?._id, name, email, age, gender, address, role
+            }
+            const res = await fetch('http://localhost:8000/api/v1/users', {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${access_token}`,
+                },
+                body: JSON.stringify(data),
+            })
+            const d = await res.json()
+            if (d && d.data) {
+                message.success(JSON.stringify(d.message))
+                handleCloseCreateModal()
+                await getData()
+            } else {
+                notification.error({
+                    message: 'Có lỗi xảy ra',
+                    description: JSON.stringify(d.message)
+                })
+            }
+        }
+    };
 
     return (
         <Modal
             title="Update A User"
             open={isUpdateModalOpen}
-            onOk={handleOk}
+            onOk={() => form.submit()}
             onCancel={() => handleCloseCreateModal()}
             maskClosable={false}
         >
-            <div>
-                <label>Name:</label>
-                <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Email:</label>
-                <Input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Password:</label>
-                <Input
-                    disabled
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Age:</label>
-                <Input
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Gender:</label>
-                <Input
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Address:</label>
-                <Input
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                />
-            </div>
-            <div>
-                <label>Role:</label>
-                <Input
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                />
-            </div>
+            <Form
+                form={form}
+                name="basic"
+                // labelCol={{ span: 8 }}
+                // wrapperCol={{ span: 16 }}
+                // style={{ maxWidth: 600 }}
+                initialValues={{ remember: true }}
+                onFinish={onFinish}
+                // onFinishFailed={onFinishFailed}
+                // autoComplete="off"
+                layout="vertical"
+            >
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Name"
+                    name="name"
+                    rules={[{ required: true, message: 'Please input your name!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Email"
+                    name="email"
+                    rules={[{ required: true, message: 'Please input your email!' }]}
+                >
+                    <Input type='email' />
+                </Form.Item>
+
+                <Form.Item
+
+                    style={{ marginBottom: 5 }}
+                    label="Password"
+                    name="password"
+                    rules={[{ required: dataUpdate ? false : true, message: 'Please input your password!' }]}
+                >
+                    <Input.Password disabled={dataUpdate ? true : false} />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Age"
+                    name="age"
+                    rules={[{ required: true, message: 'Please input your age!' }]}
+                >
+                    <InputNumber style={{ width: '100%' }} />
+                </Form.Item>
+
+                <Form.Item
+                    style={{ marginBottom: 5 }}
+                    label="Address"
+                    name="address"
+                    rules={[{ required: true, message: 'Please input your address!' }]}
+                >
+                    <Input />
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 5 }} name="gender" label="Gender" rules={[{ required: true }]}>
+                    <Select
+                        placeholder="Select a option and change input text above"
+                        // onChange={onGenderChange}
+                        allowClear
+                    >
+                        <Option value="male">male</Option>
+                        <Option value="female">female</Option>
+                        <Option value="other">other</Option>
+                    </Select>
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 5 }} name="role" label="Role" rules={[{ required: true }]}>
+                    <Select
+                        placeholder="Select a option and change input text above"
+                        // onChange={onGenderChange}
+                        allowClear
+                    >
+                        <Option value="user">USER</Option>
+                        <Option value="admin">ADMIN</Option>
+                    </Select>
+                </Form.Item>
+
+            </Form>
         </Modal>
     )
 }
