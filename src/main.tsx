@@ -13,6 +13,8 @@ import UsersPage from './screens/users.page.tsx';
 import { UserOutlined, HomeOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Menu } from 'antd';
+import TracksTable from './components/tracks/tracks.table.tsx';
+import TracksPage from './screens/track.page.tsx';
 
 const items: MenuProps['items'] = [
   {
@@ -23,6 +25,11 @@ const items: MenuProps['items'] = [
   {
     label: <Link to={'/users'}>Manage Users</Link>,
     key: 'users',
+    icon: <UserOutlined />,
+  },
+  {
+    label: <Link to={'/tracks'}>Manage Tracks</Link>,
+    key: 'tracks',
     icon: <UserOutlined />,
   },
 ];
@@ -83,7 +90,7 @@ const router = createBrowserRouter([
       },
       {
         path: "tracks",
-        element: <div>Tracks Component</div>,
+        element: <TracksPage />,
       },
     ],
   },
