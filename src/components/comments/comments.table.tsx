@@ -16,22 +16,29 @@ interface DataType {
     }
 }
 
-interface ITracks {
-    _id: string;
-    category: string;
-    countLike: number;
-    countPlay: number;
-    createdAt: string;
-    description: string;
-    imgUrl: string;
-    isDeleted: boolean;
-    title: string;
-    trackUrl: string;
-    uploader: any;
-    __v: any
+interface IComment {
+    "_id": string;
+    "content": string;
+    "moment": number;
+    "user": {
+        "_id": string;
+        "email": string;
+        "name": string;
+        "role": string;
+        "type": string;
+    },
+    "track": {
+        "_id": string;
+        "title": string;
+        "description": string;
+        "trackUrl": string;
+    },
+    "isDeleted": boolean;
+    "createdAt": string;
+    "updatedAt": string;
 }
 
-const TracksTable = () => {
+const CommentTable = () => {
 
     const [listTracks, setListTracks] = useState([])
     const [meta, setMeta] = useState({
@@ -42,8 +49,6 @@ const TracksTable = () => {
     })
     const access_token = localStorage.getItem('access_token',)
 
-
-
     const columns: TableColumnsType<DataType> = [
         {
             title: "Index",
@@ -51,39 +56,23 @@ const TracksTable = () => {
             render: (value, item, index) => (meta.current - 1) * meta.pageSize + index + 1
         },
         {
-            title: 'Title',
-            dataIndex: 'title',
+            title: 'Content',
+            dataIndex: 'content',
         },
         {
-            title: 'Description',
-            dataIndex: 'description',
+            title: 'Track',
+            dataIndex: ['track', 'title'],
         },
         {
-            title: 'Category',
-            dataIndex: 'category',
-        },
-        {
-            title: 'trackUrl',
-            dataIndex: 'trackUrl',
-        },
-        {
-            title: 'Uploader',
-            // Cách 1
-            // dataIndex: ['uploader', 'name'],
-
-            // Cách 2:
-            render: (value, record, index) => {
-                return (
-                    <>{record.uploader.name}</>
-                )
-            }
+            title: 'User',
+            dataIndex: ['user', 'email'],
         },
         {
             title: 'English Score',
             render: (value, record: any, index) => {
                 // console.log('re:', record)
-                const confirm = async (tracks: ITracks) => {
-                    const res = await fetch(`http://localhost:8000/api/v1/tracks/${tracks._id}`, {
+                const confirm = async (comment: IComment) => {
+                    const res = await fetch(`http://localhost:8000/api/v1/comments/${comment._id}`, {
                         method: "DELETE",
                         headers: {
                             "Content-Type": "application/json",
@@ -98,14 +87,14 @@ const TracksTable = () => {
                             message: d.message
                         })
                     } else {
-                        message.success('Xóa bài track thành công');
+                        message.success('Xóa comment thành công');
                         await getData()
                     }
                 };
                 return (
                     <Popconfirm
                         title="Delete the task"
-                        description="Are you sure to delete this task?"
+                        description="Are you sure to delete this comment?"
                         onConfirm={() => confirm(record)}
                         // onCancel={cancel}
                         okText="Yes"
@@ -120,7 +109,7 @@ const TracksTable = () => {
 
     const onChange: TableProps<DataType>['onChange'] = async (pagination, filters, sorter, extra) => {
         console.log('params', pagination, filters, sorter, extra);
-        const res = await fetch(`http://localhost:8000/api/v1/tracks?current=${pagination.current}&pageSize=${pagination.pageSize}`, {
+        const res = await fetch(`http://localhost:8000/api/v1/comments?current=${pagination.current}&pageSize=${pagination.pageSize}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -149,7 +138,7 @@ const TracksTable = () => {
     }, [])
 
     const getData = async () => {
-        const res = await fetch(`http://localhost:8000/api/v1/tracks?current=${meta.current}&pageSize=${meta.pageSize}`, {
+        const res = await fetch(`http://localhost:8000/api/v1/comments?current=${meta.current}&pageSize=${meta.pageSize}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -193,4 +182,5 @@ const TracksTable = () => {
     )
 }
 
-export default TracksTable;
+export default CommentTable
+    ;

@@ -89,6 +89,11 @@ const UsersTable = () => {
 
     const columns: TableProps<IUsers>['columns'] = [
         {
+            title: "Index",
+            key: "index",
+            render: (value, item, index) => (meta.current - 1) * meta.pageSize + index + 1
+        },
+        {
             title: 'Name',
             dataIndex: 'name',
             render: (value, record) => <a>{record.name}</a>,
@@ -106,11 +111,11 @@ const UsersTable = () => {
             render: (value, record) => {
                 return (
                     <div>
-                        <button onClick={() => {
+                        <Button onClick={() => {
                             setIsUpdateModalOpen(true)
                             setDataUpdate(record)
                         }}
-                        >EDIT</button>
+                        >Edit</Button>
                         <Popconfirm
                             title="Delete the user"
                             description={`Are you sure to delete this user?, name = ${record.name}`}
